@@ -1,0 +1,15 @@
+{
+    "qlogenv": {
+        "awscloudformation": {
+            "AuthRoleName": "amplify-questlog-qlogenv-91714-authRole",
+            "UnauthRoleArn": "arn:aws:iam::517113019386:role/amplify-questlog-qlogenv-91714-unauthRole",
+            "AuthRoleArn": "arn:aws:iam::517113019386:role/amplify-questlog-qlogenv-91714-authRole",
+            "Region": "us-east-1",
+            "DeploymentBucketName": "amplify-questlog-qlogenv-91714-deployment",
+            "UnauthRoleName": "amplify-questlog-qlogenv-91714-unauthRole",
+            "StackName": "amplify-questlog-qlogenv-91714",
+            "StackId": "arn:aws:cloudformation:us-east-1:517113019386:stack/amplify-questlog-qlogenv-91714/ac26fd80-57f2-11ea-889c-12717722e021",
+            "AmplifyAppId": "d12fs6qtnw7hjl"
+        }
+    }
+}
