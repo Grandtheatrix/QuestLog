@@ -1,0 +1,34 @@
+{
+    "paths": [
+        {
+            "name": "/items",
+            "lambdaFunction": "getQuests",
+            "privacy": {
+                "open": true
+            }
+        }
+    ],
+    "resourceName": "QuestLogAPI",
+    "apiName": "QuestLogAPI",
+    "functionArns": [
+        {
+            "lambdaFunction": "getQuests"
+        }
+    ],
+    "privacy": {
+        "auth": 0,
+        "unauth": 0,
+        "authRoleName": "amplify-questlog-qlogenv-91714-authRole",
+        "unAuthRoleName": "amplify-questlog-qlogenv-91714-unauthRole"
+    },
+    "dependsOn": [
+        {
+            "category": "function",
+            "resourceName": "getQuests",
+            "attributes": [
+                "Name",
+                "Arn"
+            ]
+        }
+    ]
+}

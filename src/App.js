@@ -1,11 +1,10 @@
 import React from 'react';
-import logo from './logo.svg';
 import './App.css';
-import { Scrollbars } from 'react-custom-scrollbars';
-import scrollbarThumb from "./assets/scrollworkThumb.png"
+import cross from "./assets/cross.png"
 import Amplify, { Auth } from 'aws-amplify';
 import { withAuthenticator } from 'aws-amplify-react';
 import { CustomScrollBar } from "./components/CustomScrollBar"
+import DynamoDB from 'aws-sdk/clients/dynamodb';
 
 Amplify.configure({
   Auth: {
@@ -24,24 +23,52 @@ const thirtyThings = () => {
   return output;
 }
 
+const formatChapter = (item) => {
+  return (
+    <div style={{width:"100%", display:"flex", flexDirection:"column", alignItems:"flex-start", paddingLeft:20}} >
+    <p style={{fontSize:30}}>{item.label}</p>
+    {item.subquests.map(subQ => <div style={{paddingLeft: 30, paddingTop:10, display: "flex", alignItems:"center"}}><img style={{width:30, height:30}} src={cross}/><span style={{fontSize:25, paddingLeft: 20}}>{subQ}</span></div>)}
+  </div>
+  )
+}
+
 function App() {
   const [things, setThings] = React.useState([])
   const [currentUser, setCurrentUser] = React.useState("")
+  const [quests, setQuests] = React.useState([])
+
   React.useEffect(() => {
     setThings(thirtyThings());
     Auth.currentAuthenticatedUser({
       bypassCache: false
     }).then(user =>
-      // console.log(user)
-      setCurrentUser(user.username)
+      {setCurrentUser(user.username);
+      getAllQuests();
+      }
     )
       .catch(err => console.log("currentAuthenticatedUser error", err));
+      
   }, []
   )
   const getThings = (dir) => {
     return things.map(item => (
       <p>{dir} {item}</p>
     ))
+  }
+
+  const getAllQuests = () => {
+    const params = {TableName:"Quests", Limit: 100}
+    Auth.currentCredentials()
+  .then(credentials => {
+    const db= new DynamoDB.DocumentClient({
+      credentials: Auth.essentialCredentials(credentials), region:'us-east-2'
+    });
+      db.scan(params, (err, data) => {
+        if (err){console.log("ERROR",err)}
+        else {console.log(data); setQuests(data.Items)}
+      })
+    // now you can run queries with dynamo and current scoped credentials i.e. db.query(...)
+  })
   }
   return (
     <div className="App">
@@ -54,9 +81,9 @@ function App() {
         </div>
         <div style={{ flex: 18, display: "flex", width: "100%", justifyContent: "space-around" }}>
           <div style={{ flex: 1 }}></div>
-          <div id="leftPage" style={{ flex: 8, width: "90%" }}>
+          <div id="leftPage" style={{ flex: 8, width: "90%", alignItems:"flex-start" }}>
             <CustomScrollBar>
-              {getThings("left")}
+              {quests.map(item => formatChapter(item) )}
             </CustomScrollBar>
           </div>
           <div style={{ flex: 1 }}></div>
