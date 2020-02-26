@@ -93,7 +93,7 @@ function App() {
     });
       db.put(params, (err, data) => {
         if (err){console.log("ERROR",err)}
-        else {console.log(data); setQuests(data.Items)}
+        else {console.log(data); setQuests(data.Items.reverse())}
       })
   })
   }
