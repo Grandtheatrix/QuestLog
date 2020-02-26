@@ -31,6 +31,23 @@
   width: 20px;
   height: 100%;
 }
+.newQuestButtonDiv {
+  width:100%; 
+  display:flex;
+  flex-direction:column; 
+  opacity:0;
+  align-items:flex-start; 
+  padding-left:20px; 
+  padding-top:30px;
+  transition: opacity 0.25s;
+}
+.newQuestButton {
+  display: flex; 
+  align-items:center;
+}
+.newQuestButtonDiv:hover{
+  opacity: 1;
+}
 
 .App-link {
   color: #61dafb;

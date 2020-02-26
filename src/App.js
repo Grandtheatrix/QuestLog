@@ -1,10 +1,14 @@
 import React from 'react';
 import './App.css';
 import cross from "./assets/cross.png"
+import diamond from "./assets/blackDiamond.png"
 import Amplify, { Auth } from 'aws-amplify';
 import { withAuthenticator } from 'aws-amplify-react';
 import { CustomScrollBar } from "./components/CustomScrollBar"
 import DynamoDB from 'aws-sdk/clients/dynamodb';
+import moment from "moment";
+import { v4 as uuidv4 } from 'uuid';
+import Modal from "./components/Modal";
 
 Amplify.configure({
   Auth: {
@@ -26,7 +30,7 @@ const thirtyThings = () => {
 const formatChapter = (item) => {
   return (
     <div style={{width:"100%", display:"flex", flexDirection:"column", alignItems:"flex-start", paddingLeft:20}} >
-    <p style={{fontSize:30}}>{item.label}</p>
+    <div style={{display: "flex", alignItems:"center"}}><img style={{width:30, height:15}}  src={diamond}/><span style={{fontSize:30, paddingLeft:10}}>{item.label}</span></div>
     {item.subquests.map(subQ => <div style={{paddingLeft: 30, paddingTop:10, display: "flex", alignItems:"center"}}><img style={{width:30, height:30}} src={cross}/><span style={{fontSize:25, paddingLeft: 20}}>{subQ}</span></div>)}
   </div>
   )
@@ -34,8 +38,10 @@ const formatChapter = (item) => {
 
 function App() {
   const [things, setThings] = React.useState([])
-  const [currentUser, setCurrentUser] = React.useState("")
-  const [quests, setQuests] = React.useState([])
+  const [newQuestLabel, setNewQuestLabel] = React.useState("");
+  const [currentUser, setCurrentUser] = React.useState("");
+  const [quests, setQuests] = React.useState([]);
+  const [open, setOpen] = React.useState(false);
 
   React.useEffect(() => {
     setThings(thirtyThings());
@@ -60,16 +66,38 @@ function App() {
     const params = {TableName:"Quests", Limit: 100}
     Auth.currentCredentials()
   .then(credentials => {
-    const db= new DynamoDB.DocumentClient({
+    const db = new DynamoDB.DocumentClient({
       credentials: Auth.essentialCredentials(credentials), region:'us-east-2'
     });
       db.scan(params, (err, data) => {
         if (err){console.log("ERROR",err)}
         else {console.log(data); setQuests(data.Items)}
       })
-    // now you can run queries with dynamo and current scoped credentials i.e. db.query(...)
   })
   }
+
+  const putQuest = () => {
+    var params = {
+      TableName : 'Quests',
+      Item: {
+         id: uuidv4(),
+         label: newQuestLabel,
+         subquests: [],
+         dateCreated: moment.now()
+      }
+    };
+    Auth.currentCredentials()
+  .then(credentials => {
+    const db = new DynamoDB.DocumentClient({
+      credentials: Auth.essentialCredentials(credentials), region:'us-east-2'
+    });
+      db.put(params, (err, data) => {
+        if (err){console.log("ERROR",err)}
+        else {console.log(data); setQuests(data.Items)}
+      })
+  })
+  }
+
   return (
     <div className="App">
       <header className="App-header">
@@ -84,6 +112,11 @@ function App() {
           <div id="leftPage" style={{ flex: 8, width: "90%", alignItems:"flex-start" }}>
             <CustomScrollBar>
               {quests.map(item => formatChapter(item) )}
+              <div className="newQuestButtonDiv" onClick={()=> setOpen(true)}>
+                <div className="newQuestButton"style={{display: "flex", alignItems:"center"}}>
+                  <img style={{width:30, height:15}}  src={diamond}/>
+                </div>
+              </div>
             </CustomScrollBar>
           </div>
           <div style={{ flex: 1 }}></div>
@@ -95,6 +128,7 @@ function App() {
           <div style={{ flex: 1 }}></div>
         </div>
       </header>
+      <Modal open={open} setOpen={setOpen}/>
     </div>
   );
 }
