@@ -29,7 +29,7 @@ const thirtyThings = () => {
 
 const formatChapter = (item) => {
   return (
-    <div style={{width:"100%", display:"flex", flexDirection:"column", alignItems:"flex-start", paddingLeft:20}} >
+    <div style={{width:"100%", display:"flex", flexDirection:"column", alignItems:"flex-start", paddingLeft:20, paddingTop:30}} >
     <div style={{display: "flex", alignItems:"center"}}><img style={{width:30, height:15}}  src={diamond}/><span style={{fontSize:30, paddingLeft:10}}>{item.label}</span></div>
     {item.subquests.map(subQ => <div style={{paddingLeft: 30, paddingTop:10, display: "flex", alignItems:"center"}}><img style={{width:30, height:30}} src={cross}/><span style={{fontSize:25, paddingLeft: 20}}>{subQ}</span></div>)}
   </div>
@@ -71,7 +71,7 @@ function App() {
     });
       db.scan(params, (err, data) => {
         if (err){console.log("ERROR",err)}
-        else {console.log(data); setQuests(data.Items)}
+        else {console.log(data); setQuests(data.Items.reverse())}
       })
   })
   }
