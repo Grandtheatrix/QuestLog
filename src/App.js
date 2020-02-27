@@ -26,12 +26,12 @@ const thirtyThings = () => {
   }
   return output;
 }
-
-const formatChapter = (item) => {
+function FormatChapter({item}){
+  const[show, setShow] = React.useState(false);
   return (
-    <div style={{width:"100%", display:"flex", flexDirection:"column", alignItems:"flex-start", paddingLeft:20, paddingTop:30}} >
-    <div style={{display: "flex", alignItems:"center"}}><img style={{width:30, height:15}}  src={diamond}/><span style={{fontSize:30, paddingLeft:10}}>{item.label}</span></div>
-    {item.subquests.map(subQ => <div style={{paddingLeft: 30, paddingTop:10, display: "flex", alignItems:"center"}}><img style={{width:30, height:30}} src={cross}/><span style={{fontSize:25, paddingLeft: 20}}>{subQ}</span></div>)}
+    <div onMouseOver={() => setShow(true)} onMouseLeave={() => setShow(false)} style={{width:"100%", display:"flex", flexDirection:"column", alignItems:"flex-start", paddingLeft:20, paddingTop:30, transition: "height 0.5s"}} >
+    <div style={{display:"flex", alignItems:"center"}}><img style={{width:30, height:15}}  src={diamond}/><span style={{fontSize:25, paddingLeft:10}}>{item.label}</span></div>
+    {show && item.subquests.map(subQ => <div style={{paddingLeft: 30, paddingTop:10, display: "flex", alignItems:"center"}}><img style={{width:30, height:30}} src={cross}/><span style={{fontSize:20, paddingLeft: 20}}>{subQ}</span></div>)}
   </div>
   )
 }
@@ -111,7 +111,7 @@ function App() {
           <div style={{ flex: 1 }}></div>
           <div id="leftPage" style={{ flex: 8, width: "90%", alignItems:"flex-start" }}>
             <CustomScrollBar>
-              {quests.map(item => formatChapter(item) )}
+              {quests.map(item => <FormatChapter item={item} /> )}
               <div className="newQuestButtonDiv" onClick={()=> setOpen(true)}>
                 <div className="newQuestButton"style={{display: "flex", alignItems:"center"}}>
                   <img style={{width:30, height:15}}  src={diamond}/>
