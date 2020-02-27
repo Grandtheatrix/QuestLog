@@ -73,9 +73,9 @@ export default function SubquestModal({open, setOpen, item, getAllQuests, subque
       Key:{
         "id": item.id,
         },
-        UpdateExpression: "set subquests = :s",
+        UpdateExpression: "set subquests[" + subquestEditIndex + "] = :s",
         ExpressionAttributeValues:{
-            ":s": [...item.subquests.slice(0,subquestEditIndex ), {label:label, notes:notes}, ...item.subquests.slice(subquestEditIndex+1)]
+            ":s": {label:label, notes:notes}
         },
         ReturnValues:"UPDATED_NEW"
     };
