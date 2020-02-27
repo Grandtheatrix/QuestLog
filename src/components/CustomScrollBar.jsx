@@ -8,6 +8,9 @@ export const CustomScrollBar =  (props) => {
         autoHide
         autoHideTimeout={500}
         style={{ maxHeight: "80vh" }}
+        renderView={props => (
+            <div {...props} style={{ ...props.style, overflowX: 'hidden' }} />
+        )}
         renderTrackHorizontal={() =><div></div>}
         renderTrackVertical={({ style, ...props }) =>
         <div id="thisOne"{...props} style={{ ...style, width: 20, height: "100%" }} />

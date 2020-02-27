@@ -111,9 +111,9 @@ function App() {
         <div style={{ flex: 1, width: "100%"}}>
           
         </div>
-        <div style={{ flex: 18, display: "flex", width: "100%", justifyContent: "space-around" }}>
+        <div style={{ flex: 18, display: "flex", width: "90%", justifyContent: "space-around" }}>
           <div style={{ flex: 1 }}></div>
-          <div id="leftPage" style={{ flex: 8, width: "90%", alignItems:"center" }}>
+          <div id="leftPage" style={{ flex: 8, width: "100%", alignItems:"center" }}>
             <CustomScrollBar>
               {quests.map(item => <FormatChapter setSelectedQuest={setSelectedQuest} item={item}/> )}
               <div className="newQuestButtonDiv" onClick={()=> setOpen(true)}>
