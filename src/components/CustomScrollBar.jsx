@@ -13,7 +13,7 @@ export const CustomScrollBar =  (props) => {
         <div id="thisOne"{...props} style={{ ...style, width: 20, height: "100%" }} />
         }
         renderThumbVertical={({ style, ...props }) =>
-        <img {...props} style={{ ...style }} src={scrollbarThumb} />
+        <img {...props} style={{ ...style, height:125}} src={scrollbarThumb} />
         }
         // renderView={props => <div {...props} className="view" style={{borderTop:"solid black 2px"}}/>}
     >

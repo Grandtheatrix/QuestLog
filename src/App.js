@@ -26,7 +26,7 @@ function FormatChapter({item = {}, setSelectedQuest}){
   return (
     <div onMouseOver={() => setShow(true)} onMouseLeave={() => setShow(false)} onClick={()=>{if(setSelectedQuest) setSelectedQuest(item)}} style={{width:"100%", display:"flex", flexDirection:"column", alignItems:"flex-start", paddingLeft:20, paddingTop:30, transition: "height 0.5s"}} >
     <div style={{display:"flex", alignItems:"center"}}><img style={{width:30, height:15}}  src={diamond}/><span style={{fontSize:25, paddingLeft:10}}>{item.label}</span></div>
-    {show && item.subquests.map(subQ => <div style={{paddingLeft: 30, paddingTop:10, display: "flex", alignItems:"center"}}><img style={{width:30, height:30}} src={cross}/><span style={{fontSize:20, paddingLeft: 20}}>{subQ.label}</span></div>)}
+    {show && item.subquests.map(subQ => <div style={{paddingLeft: 30, paddingTop:10, display: "flex", alignItems:"center"}}><img style={{width:30, height:30}} src={cross}/><span style={{fontSize:15, paddingLeft: 20}}>{subQ.label}</span></div>)}
   </div>
   )
 }
@@ -127,7 +127,7 @@ function App() {
           <div id="rightPage" style={{ display:"flex", flexDirection:"column", alignItems:"center",flex: 8, width: "90%", transform: "rotate(-1.75deg)" }}>
             {JSON.stringify(selectedQuest) !== "{}" && 
             <div style={{display:"flex", alignItems:"center"}}>
-              <span onClick={()=>{setQuestEditMode(true); setOpen(true) } } style={{fontSize:45, paddingLeft:10}}>{selectedQuest.label}</span> <img className="closeButton" src={closeButton} onClick={confirmDeleteQuest}/>
+              <span onClick={()=>{setQuestEditMode(true); setOpen(true) } } style={{fontSize:30, paddingLeft:10}}>{selectedQuest.label}</span> <img className="closeButton" src={closeButton} onClick={confirmDeleteQuest}/>
               {/* <img style={{height:10,width: "90%"}} src={divider}/> */}
               </div>
             }
