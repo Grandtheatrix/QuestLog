@@ -20,11 +20,25 @@ Amplify.configure({
   }
 });
 
-function FormatChapter({item = {}, setSelectedQuest}){
+function FormatChapter({item = {}, setSelectedQuest, selectedQuest}){
   const[show, setShow] = React.useState(false);
+  React.useEffect(() => {
+    if(selectedQuest.id !== item.id){
+      setShow(false);
+    }
+  },[selectedQuest])
+
+  const handleShowState = (bool) => {
+    if (selectedQuest.id === item.id || bool){
+      setShow(true)
+    } else {
+      setShow(false)
+    }
+  }
+
   if (JSON.stringify(item) === "{}") {return null}
   return (
-    <div onMouseOver={() => setShow(true)} onMouseLeave={() => setShow(false)} onClick={()=>{if(setSelectedQuest) setSelectedQuest(item)}} style={{width:"100%", display:"flex", flexDirection:"column", alignItems:"flex-start", paddingLeft:20, paddingTop:30, transition: "height 0.5s"}} >
+    <div onMouseOver={() => handleShowState(true)} onMouseLeave={() => handleShowState(false)} onClick={()=>{if(setSelectedQuest) setSelectedQuest(item)}} style={{width:"100%", display:"flex", flexDirection:"column", alignItems:"flex-start", paddingLeft:20, paddingTop:30, transition: "height 0.5s"}} >
     <div style={{display:"flex", alignItems:"center"}}><img style={{width:30, height:15}}  src={diamond}/><span style={{fontSize:25, paddingLeft:10}}>{item.label}</span></div>
     {show && item.subquests.map(subQ => <div style={{paddingLeft: 30, paddingTop:10, display: "flex", alignItems:"center"}}><img style={{width:30, height:30}} src={cross}/><span style={{fontSize:15, paddingLeft: 20}}>{subQ.label}</span></div>)}
   </div>
@@ -115,7 +129,7 @@ function App() {
           <div style={{ flex: 1 }}></div>
           <div id="leftPage" style={{ flex: 8, width: "100%", alignItems:"center" }}>
             <CustomScrollBar>
-              {quests.map(item => <FormatChapter setSelectedQuest={setSelectedQuest} item={item}/> )}
+              {quests.map(item => <FormatChapter setSelectedQuest={setSelectedQuest} selectedQuest={selectedQuest} item={item}/> )}
               <div className="newQuestButtonDiv" onClick={()=> setOpen(true)}>
                 <div className="newQuestButton"style={{display: "flex", alignItems:"center"}}>
                   <img style={{width:30, height:15}}  src={diamond}/>
