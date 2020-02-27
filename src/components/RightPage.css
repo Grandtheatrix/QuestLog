@@ -1,9 +1,10 @@
 .newSubQuest{
     width: 95%;
+    height: 20vh;
     padding-left: 30px; 
     padding-top:10px; 
     display: flex; 
-    align-items: center;
+    align-items: flex-start;
     opacity:0;
     transition: opacity 0.25s
 }
@@ -11,3 +12,17 @@
 .newSubQuest:hover{
     opacity: 1;
 }
+
+.closeButton {
+    width:15px; 
+    height:15px;
+    display:flex;
+    flex-direction:column; 
+    opacity:1;
+    align-items:flex-start; 
+    padding-left:10px; 
+    transition: opacity 0.25s;
+  }
+  .closeButton:hover{
+    opacity: 1;
+  }

@@ -33,6 +33,7 @@
 }
 .newQuestButtonDiv {
   width:100%; 
+  height:20vh;
   display:flex;
   flex-direction:column; 
   opacity:0;
@@ -46,6 +47,20 @@
   align-items:center;
 }
 .newQuestButtonDiv:hover{
+  opacity: 1;
+}
+
+.closeButton {
+  width:15px; 
+  height:15px;
+  display:flex;
+  flex-direction:column; 
+  opacity:0;
+  align-items:flex-start; 
+  padding-left:10px; 
+  transition: opacity 0.25s;
+}
+.closeButton:hover{
   opacity: 1;
 }
 

@@ -29,11 +29,19 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-export default function SubquestModal({open, setOpen, item, getAllQuests}) {
+export default function SubquestModal({open, setOpen, item, getAllQuests, subquestEditMode, setSubquestEditMode, subquestEditIndex, setSubquestEditIndex}) {
   const classes = useStyles();
   const [modalStyle] = React.useState(getModalStyle);
   const [label, setLabel] = React.useState("");
   const [notes, setNotes] = React.useState("");
+
+  React.useEffect(()=> {
+      console.log("subquestEditIndex",subquestEditIndex)
+      if(subquestEditIndex!== null){
+          setLabel(item.subquests[subquestEditIndex].label)
+          setNotes(item.subquests[subquestEditIndex].notes)
+        }
+  },[subquestEditIndex])
 
   const addSubquest = () => {
     var params = {
@@ -59,10 +67,36 @@ export default function SubquestModal({open, setOpen, item, getAllQuests}) {
   })
   }
 
+  const updateSubquest = () => {
+    var params = {
+      TableName : 'Quests',
+      Key:{
+        "id": item.id,
+        },
+        UpdateExpression: "set subquests = :s",
+        ExpressionAttributeValues:{
+            ":s": [...item.subquests.slice(0,subquestEditIndex ), {label:label, notes:notes}, ...item.subquests.slice(subquestEditIndex+1)]
+        },
+        ReturnValues:"UPDATED_NEW"
+    };
+    Auth.currentCredentials()
+  .then(credentials => {
+    const db = new DynamoDB.DocumentClient({
+      credentials: Auth.essentialCredentials(credentials), region:'us-east-2'
+    });
+      db.update(params, (err, data) => {
+        if (err){console.log("ERROR",err)}
+        else {console.log("SUCCESS!!",data); handleClose(); getAllQuests();}
+      })
+  })
+  }
+
   const handleClose = () => {
       setNotes("");
       setLabel("");
       setOpen(false);
+      setSubquestEditMode(false);
+      setSubquestEditIndex(null);
   };
 
   return (
@@ -76,11 +110,11 @@ export default function SubquestModal({open, setOpen, item, getAllQuests}) {
         <div 
         style={modalStyle} 
         className={classes.paper}>
-          <h2 id="simple-modal-title">New Sub-Quest Title</h2>
+          <h2 id="simple-modal-title">{subquestEditMode ? "Update":"New"} Sub-Quest Title</h2>
           <input type="text" value={label} onChange={(e)=>setLabel(e.target.value)}/>
-          <h2 id="simple-modal-title">Notes</h2>
+          <h2 id="simple-modal-title"> {subquestEditMode && "Update"} Notes</h2>
           <textarea rows="5" cols="50" value={notes} onChange={(e)=>setNotes(e.target.value)}/>
-          <button onClick={() => addSubquest()}>Inscribe</button>
+          <button onClick={() => subquestEditMode ? updateSubquest() : addSubquest()}>Inscribe</button>
         </div>
       </Modal>
     </div>

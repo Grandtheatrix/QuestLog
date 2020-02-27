@@ -29,10 +29,16 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-export default function SimpleModal({open, setOpen, getAllQuests}) {
+export default function SimpleModal({open, setOpen, getAllQuests, questEditMode, setQuestEditMode, selectedQuest}) {
   const classes = useStyles();
   const [modalStyle] = React.useState(getModalStyle);
   const [text, setText] = React.useState("");
+
+  React.useEffect(()=>{
+    if(JSON.stringify(selectedQuest) !== "{}" && questEditMode){
+      setText(selectedQuest.label)
+    }
+  },[selectedQuest,questEditMode])
 
   const putQuest = () => {
     var params = {
@@ -55,10 +61,35 @@ export default function SimpleModal({open, setOpen, getAllQuests}) {
       })
   })
   }
+  const updateQuest = () => {
+    var params = {
+      TableName : 'Quests',
+      Key:{
+        "id": selectedQuest.id,
+        },
+        UpdateExpression: "set label = :l",
+        ExpressionAttributeValues:{
+            ":l": text
+        },
+        ReturnValues:"UPDATED_NEW"
+    };
+    Auth.currentCredentials()
+  .then(credentials => {
+    const db = new DynamoDB.DocumentClient({
+      credentials: Auth.essentialCredentials(credentials), region:'us-east-2'
+    });
+      db.update(params, (err, data) => {
+        if (err){console.log("ERROR",err)}
+        else {console.log("SUCCESS!!",data); handleClose(); getAllQuests();}
+      })
+  })
+  }
 
   const handleClose = () => {
-    setText("")
+    setText("");
+    setQuestEditMode(false)
     setOpen(false);
+
   };
 
   return (
@@ -72,9 +103,9 @@ export default function SimpleModal({open, setOpen, getAllQuests}) {
         <div 
         style={modalStyle} 
         className={classes.paper}>
-          <h2 id="simple-modal-title">New Quest Title</h2>
+          <h2 id="simple-modal-title">{questEditMode ? "Update" : "New"} Quest Title</h2>
           <textarea rows="5" cols="50" value={text} onChange={(e)=>setText(e.target.value)}/>
-          <button onClick={() => putQuest()}>Inscribe</button>
+          <button onClick={() => questEditMode ? updateQuest() : putQuest()}>Inscribe</button>
         </div>
       </Modal>
     </div>
