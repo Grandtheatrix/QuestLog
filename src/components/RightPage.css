@@ -1,0 +1,13 @@
+.newSubQuest{
+    width: 95%;
+    padding-left: 30px; 
+    padding-top:10px; 
+    display: flex; 
+    align-items: center;
+    opacity:0;
+    transition: opacity 0.25s
+}
+
+.newSubQuest:hover{
+    opacity: 1;
+}

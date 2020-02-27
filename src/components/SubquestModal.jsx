@@ -29,36 +29,40 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-export default function SimpleModal({open, setOpen, getAllQuests}) {
+export default function SubquestModal({open, setOpen, item, getAllQuests}) {
   const classes = useStyles();
   const [modalStyle] = React.useState(getModalStyle);
-  const [text, setText] = React.useState("");
+  const [label, setLabel] = React.useState("");
+  const [notes, setNotes] = React.useState("");
 
-  const putQuest = () => {
+  const addSubquest = () => {
     var params = {
       TableName : 'Quests',
-      Item: {
-         id: uuidv4(),
-         label: text,
-         subquests: [],
-         dateCreated: moment.now()
-      }
+      Key:{
+        "id": item.id,
+        },
+        UpdateExpression: "set subquests = :s",
+        ExpressionAttributeValues:{
+            ":s": [...item.subquests, {label:label, notes:notes}]
+        },
+        ReturnValues:"UPDATED_NEW"
     };
     Auth.currentCredentials()
   .then(credentials => {
     const db = new DynamoDB.DocumentClient({
       credentials: Auth.essentialCredentials(credentials), region:'us-east-2'
     });
-      db.put(params, (err, data) => {
+      db.update(params, (err, data) => {
         if (err){console.log("ERROR",err)}
-        else {console.log("SUCCESS!!",data); handleClose(); getAllQuests()}
+        else {console.log("SUCCESS!!",data); handleClose(); getAllQuests();}
       })
   })
   }
 
   const handleClose = () => {
-    setText("")
-    setOpen(false);
+      setNotes("");
+      setLabel("");
+      setOpen(false);
   };
 
   return (
@@ -72,9 +76,11 @@ export default function SimpleModal({open, setOpen, getAllQuests}) {
         <div 
         style={modalStyle} 
         className={classes.paper}>
-          <h2 id="simple-modal-title">New Quest Title</h2>
-          <textarea rows="5" cols="50" value={text} onChange={(e)=>setText(e.target.value)}/>
-          <button onClick={() => putQuest()}>Inscribe</button>
+          <h2 id="simple-modal-title">New Sub-Quest Title</h2>
+          <input type="text" value={label} onChange={(e)=>setLabel(e.target.value)}/>
+          <h2 id="simple-modal-title">Notes</h2>
+          <textarea rows="5" cols="50" value={notes} onChange={(e)=>setNotes(e.target.value)}/>
+          <button onClick={() => addSubquest()}>Inscribe</button>
         </div>
       </Modal>
     </div>

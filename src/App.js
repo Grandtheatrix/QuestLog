@@ -2,12 +2,12 @@ import React from 'react';
 import './App.css';
 import cross from "./assets/cross.png"
 import diamond from "./assets/blackDiamond.png"
+import divider from "./assets/simpleDivider.png"
 import Amplify, { Auth } from 'aws-amplify';
 import { withAuthenticator } from 'aws-amplify-react';
 import { CustomScrollBar } from "./components/CustomScrollBar"
+import RightPage from "./components/RightPage"
 import DynamoDB from 'aws-sdk/clients/dynamodb';
-import moment from "moment";
-import { v4 as uuidv4 } from 'uuid';
 import Modal from "./components/Modal";
 
 Amplify.configure({
@@ -19,32 +19,25 @@ Amplify.configure({
   }
 });
 
-const thirtyThings = () => {
-  let output = [];
-  for (let i = 0; i < 30; i++) {
-    output.push("thing " + i);
-  }
-  return output;
-}
-function FormatChapter({item}){
+function FormatChapter({item = {}, setSelectedChapter}){
   const[show, setShow] = React.useState(false);
+  if (JSON.stringify(item) === "{}") {return null}
   return (
-    <div onMouseOver={() => setShow(true)} onMouseLeave={() => setShow(false)} style={{width:"100%", display:"flex", flexDirection:"column", alignItems:"flex-start", paddingLeft:20, paddingTop:30, transition: "height 0.5s"}} >
+    <div onMouseOver={() => setShow(true)} onMouseLeave={() => setShow(false)} onClick={()=>{if(setSelectedChapter) setSelectedChapter(item)}} style={{width:"100%", display:"flex", flexDirection:"column", alignItems:"flex-start", paddingLeft:20, paddingTop:30, transition: "height 0.5s"}} >
     <div style={{display:"flex", alignItems:"center"}}><img style={{width:30, height:15}}  src={diamond}/><span style={{fontSize:25, paddingLeft:10}}>{item.label}</span></div>
-    {show && item.subquests.map(subQ => <div style={{paddingLeft: 30, paddingTop:10, display: "flex", alignItems:"center"}}><img style={{width:30, height:30}} src={cross}/><span style={{fontSize:20, paddingLeft: 20}}>{subQ}</span></div>)}
+    {show && item.subquests.map(subQ => <div style={{paddingLeft: 30, paddingTop:10, display: "flex", alignItems:"center"}}><img style={{width:30, height:30}} src={cross}/><span style={{fontSize:20, paddingLeft: 20}}>{subQ.label}</span></div>)}
   </div>
   )
 }
 
 function App() {
-  const [things, setThings] = React.useState([])
-  const [newQuestLabel, setNewQuestLabel] = React.useState("");
   const [currentUser, setCurrentUser] = React.useState("");
   const [quests, setQuests] = React.useState([]);
   const [open, setOpen] = React.useState(false);
+  const [selectedChapter, setSelectedChapter] = React.useState({});
+  
 
   React.useEffect(() => {
-    setThings(thirtyThings());
     Auth.currentAuthenticatedUser({
       bypassCache: false
     }).then(user =>
@@ -56,11 +49,13 @@ function App() {
       
   }, []
   )
-  const getThings = (dir) => {
-    return things.map(item => (
-      <p>{dir} {item}</p>
-    ))
-  }
+  React.useEffect(() => {
+    for (let i of quests){
+      if (i.id === selectedChapter.id){
+        setSelectedChapter(i)
+      }
+    }
+  },[quests])
 
   const getAllQuests = () => {
     const params = {TableName:"Quests", Limit: 100}
@@ -70,28 +65,6 @@ function App() {
       credentials: Auth.essentialCredentials(credentials), region:'us-east-2'
     });
       db.scan(params, (err, data) => {
-        if (err){console.log("ERROR",err)}
-        else {console.log(data); setQuests(data.Items.reverse())}
-      })
-  })
-  }
-
-  const putQuest = () => {
-    var params = {
-      TableName : 'Quests',
-      Item: {
-         id: uuidv4(),
-         label: newQuestLabel,
-         subquests: [],
-         dateCreated: moment.now()
-      }
-    };
-    Auth.currentCredentials()
-  .then(credentials => {
-    const db = new DynamoDB.DocumentClient({
-      credentials: Auth.essentialCredentials(credentials), region:'us-east-2'
-    });
-      db.put(params, (err, data) => {
         if (err){console.log("ERROR",err)}
         else {console.log(data); setQuests(data.Items.reverse())}
       })
@@ -109,9 +82,9 @@ function App() {
         </div>
         <div style={{ flex: 18, display: "flex", width: "100%", justifyContent: "space-around" }}>
           <div style={{ flex: 1 }}></div>
-          <div id="leftPage" style={{ flex: 8, width: "90%", alignItems:"flex-start" }}>
+          <div id="leftPage" style={{ flex: 8, width: "90%", alignItems:"center" }}>
             <CustomScrollBar>
-              {quests.map(item => <FormatChapter item={item} /> )}
+              {quests.map(item => <FormatChapter setSelectedChapter={setSelectedChapter} item={item}/> )}
               <div className="newQuestButtonDiv" onClick={()=> setOpen(true)}>
                 <div className="newQuestButton"style={{display: "flex", alignItems:"center"}}>
                   <img style={{width:30, height:15}}  src={diamond}/>
@@ -120,15 +93,22 @@ function App() {
             </CustomScrollBar>
           </div>
           <div style={{ flex: 1 }}></div>
-          <div id="rightPage" style={{ flex: 8, width: "90%", transform: "rotate(-1.75deg)" }}>
+          <div id="rightPage" style={{ display:"flex", flexDirection:"column", alignItems:"center",flex: 8, width: "90%", transform: "rotate(-1.75deg)" }}>
+            {JSON.stringify(selectedChapter) !== "{}" && 
+            <div style={{display:"flex", flexDirection:"column", alignItems:"center"}}>
+              <p style={{fontSize:45, paddingLeft:10}}>{selectedChapter.label}</p>
+              {/* <img style={{height:10,width: "90%"}} src={divider}/> */}
+              </div>
+            }
+
             <CustomScrollBar>
-              {getThings("right")}
+              <RightPage item={selectedChapter} getAllQuests={getAllQuests}/>
             </CustomScrollBar>
           </div>
           <div style={{ flex: 1 }}></div>
         </div>
       </header>
-      <Modal open={open} setOpen={setOpen}/>
+      <Modal open={open} setOpen={setOpen} getAllQuests={getAllQuests}/>
     </div>
   );
 }
