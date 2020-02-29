@@ -52,14 +52,14 @@ const RightPage = ({item = {}, getAllQuests}) => {
 
     if (JSON.stringify(item) === "{}") {return null}
     return (
-      <div style={{width:"95%", display:"flex", flexDirection:"column", alignItems:"center", paddingLeft:20, paddingTop:30}} >
+      <div style={{width:"90%", display:"flex", flexDirection:"column", alignItems:"center", paddingLeft:20, paddingTop:30}} >
       {item.subquests.map((subQ, index) => 
       <React.Fragment>
       <div style={{ width: "95%" , paddingLeft: 30, paddingTop:10, display: "flex", alignItems:"center"}}>
-          <img style={{width:30, height:30}} src={cross}/><span onClick={()=>{setSubquestEditMode(true);setOpen(true);setSubquestEditIndex(index);}} style={{fontSize:25, paddingLeft: 20}}>{subQ.label}</span> <img className="closeButton" src={closeButton} onClick={() => confirmDeleteQuest(index)} />
+          <img style={{width:30, height:30}} src={cross}/><span onClick={()=>{setSubquestEditMode(true);setOpen(true);setSubquestEditIndex(index);}} style={{fontSize:20, paddingLeft: 20}}>{subQ.label}</span> <img className="closeButton" src={closeButton} onClick={() => confirmDeleteQuest(index)} />
       </div>
-      <div style={{display:"flex", alignItems:"flex-start", justifyContent:"flex-start", width: "90%"}}>
-        <p style={{fontSize:15, width: "90%" ,textAlign: "left"}} onClick={()=>{setSubquestEditMode(true);setOpen(true);setSubquestEditIndex(index);}}>{subQ.notes}</p>
+      <div style={{display:"flex", alignItems:"flex-start", justifyContent:"flex-start", width: "95%"}}>
+        <p style={{fontSize:15, width: "95%" ,textAlign: "left"}} onClick={()=>{setSubquestEditMode(true);setOpen(true);setSubquestEditIndex(index);}}>{subQ.notes}</p>
       </div>
       </React.Fragment>
       )}
