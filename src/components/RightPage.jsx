@@ -56,7 +56,7 @@ const RightPage = ({item = {}, getAllQuests}) => {
       {item.subquests.map((subQ, index) => 
       <React.Fragment>
       <div style={{ width: "95%" , paddingLeft: 30, paddingTop:10, display: "flex", alignItems:"center"}}>
-          <img style={{width:30, height:30}} src={cross}/><span onClick={()=>{setSubquestEditMode(true);setOpen(true);setSubquestEditIndex(index);}} style={{fontSize:20, paddingLeft: 20}}>{subQ.label}</span> <img className="closeButton" src={closeButton} onClick={() => confirmDeleteQuest(index)} />
+          <img style={{width:30, height:30}} src={cross}/><span onClick={()=>{setSubquestEditMode(true);setOpen(true);setSubquestEditIndex(index);}} style={{fontSize:20, paddingLeft: 20}}>{subQ.label}</span> <img className="closeButton"  style={{cursor:"pointer"}}src={closeButton} onClick={() => confirmDeleteQuest(index)} />
       </div>
       <div style={{display:"flex", alignItems:"flex-start", justifyContent:"flex-start", width: "95%"}}>
         <p style={{fontSize:15, width: "95%" ,textAlign: "left"}} onClick={()=>{setSubquestEditMode(true);setOpen(true);setSubquestEditIndex(index);}}>{subQ.notes}</p>

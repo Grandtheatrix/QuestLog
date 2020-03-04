@@ -146,7 +146,7 @@ function App() {
           <div id="rightPage" style={{ display:"flex", flexDirection:"column", alignItems:"center",flex: 8, width: "90%", transform: "rotate(-1.75deg)" }}>
             {JSON.stringify(selectedQuest) !== "{}" && 
             <div style={{display:"flex", alignItems:"center"}}>
-              <span onClick={()=>{setQuestEditMode(true); setOpen(true) } } style={{fontSize:25, paddingLeft:10}}>{selectedQuest.label}</span> <img className="closeButton" src={closeButton} onClick={confirmDeleteQuest}/>
+              <span onClick={()=>{setQuestEditMode(true); setOpen(true) } } style={{fontSize:25, paddingLeft:10}}>{selectedQuest.label}</span> <img className="closeButton" style={{cursor:"pointer"}} src={closeButton} onClick={confirmDeleteQuest}/>
               {/* <img style={{height:10,width: "90%"}} src={divider}/> */}
               </div>
             }
