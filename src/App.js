@@ -39,7 +39,7 @@ function FormatChapter({item = {}, setSelectedQuest, selectedQuest}){
 
   if (JSON.stringify(item) === "{}") {return null}
   return (
-    <div onMouseOver={() => handleShowState(true)} onMouseLeave={() => handleShowState(false)} onClick={()=>{if(setSelectedQuest) setSelectedQuest(item)}} style={{width:"100%", display:"flex", flexDirection:"column", alignItems:"flex-start", paddingLeft:20, paddingTop:30, transition: "height 0.5s"}} >
+    <div onMouseOver={() => handleShowState(true)} onMouseLeave={() => handleShowState(false)} onClick={()=>{if(setSelectedQuest) setSelectedQuest(item)}} style={{width:"50%", display:"flex", flexDirection:"column", alignItems:"flex-start", paddingLeft:20, paddingTop:30, transition: "height 0.5s"}} >
     <div style={{display:"flex", alignItems:"center"}}><img style={{width:30, height:15}}  src={diamond}/><span style={{fontSize:15, paddingLeft:10}}>{item.label}</span></div>
     <Collapse timeout={1000} in={show}>
     {
