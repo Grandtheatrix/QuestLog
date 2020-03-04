@@ -66,7 +66,7 @@ const RightPage = ({item = {}, getAllQuests}) => {
       { JSON.stringify(item) !== "{}" &&
       <React.Fragment>
         <div className="newSubQuest" onClick={()=> setOpen(true)}>
-          <img style={{width:30, height:30}} src={cross}/>
+          <img style={{width:30, height:30, cursor:"pointer"}} src={cross}/>
         </div>
         <SubquestModal open={open} setOpen={setOpen} item={item} getAllQuests={getAllQuests} subquestEditMode={subquestEditMode} setSubquestEditMode={setSubquestEditMode} subquestEditIndex={subquestEditIndex} setSubquestEditIndex={setSubquestEditIndex}/>
       </React.Fragment>
