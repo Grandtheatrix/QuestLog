@@ -10,6 +10,7 @@ import { CustomScrollBar } from "./components/CustomScrollBar"
 import RightPage from "./components/RightPage"
 import DynamoDB from 'aws-sdk/clients/dynamodb';
 import Modal from "./components/Modal";
+import Collapse from '@material-ui/core/Collapse';
 
 Amplify.configure({
   Auth: {
@@ -40,7 +41,12 @@ function FormatChapter({item = {}, setSelectedQuest, selectedQuest}){
   return (
     <div onMouseOver={() => handleShowState(true)} onMouseLeave={() => handleShowState(false)} onClick={()=>{if(setSelectedQuest) setSelectedQuest(item)}} style={{width:"100%", display:"flex", flexDirection:"column", alignItems:"flex-start", paddingLeft:20, paddingTop:30, transition: "height 0.5s"}} >
     <div style={{display:"flex", alignItems:"center"}}><img style={{width:30, height:15}}  src={diamond}/><span style={{fontSize:15, paddingLeft:10}}>{item.label}</span></div>
-    {show && item.subquests.map(subQ => <div style={{paddingLeft: 30, paddingTop:10, display: "flex", alignItems:"center"}}><img style={{width:30, height:30}} src={cross}/><span style={{fontSize:15, paddingLeft: 20}}>{subQ.label}</span></div>)}
+    <Collapse in={show}>
+    {
+    // show && 
+    item.subquests.map(subQ => <div style={{paddingLeft: 30, paddingTop:10, display: "flex", alignItems:"center"}}><img style={{width:30, height:30}} src={cross}/><span style={{fontSize:15, paddingLeft: 20}}>{subQ.label}</span></div>)
+    }
+    </Collapse>
   </div>
   )
 }
