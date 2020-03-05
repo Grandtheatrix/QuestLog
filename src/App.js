@@ -134,7 +134,7 @@ function App() {
           <div style={{ flex: 1 }}></div>
           <div id="leftPage" style={{ flex: 8, width: "100%", alignItems:"center" }}>
             <CustomScrollBar>
-              {quests.map(item => <FormatChapter setSelectedQuest={setSelectedQuest} selectedQuest={selectedQuest} item={item}/> )}
+  {quests.map(item => { if( item.id !== "orderList") { return <FormatChapter setSelectedQuest={setSelectedQuest} selectedQuest={selectedQuest} item={item}/>} })}
               <div className="newQuestButtonDiv" onClick={()=> setOpen(true)}>
                 <div className="newQuestButton"style={{display: "flex", alignItems:"center"}}>
                   <img style={{width:30, height:15, cursor:"pointer"}}  src={diamond}/>
