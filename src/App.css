@@ -35,13 +35,13 @@
 }
 .newQuestButtonDiv {
   width:100%; 
-  height:20vh;
+  height:5vh;
   display:flex;
   flex-direction:column; 
   opacity:0;
   align-items:flex-start; 
-  padding-left:20px; 
-  padding-top:30px;
+  padding-left:40px; 
+  /* padding-top:10px; */
   transition: opacity 0.25s;
 }
 .newQuestButton {

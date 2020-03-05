@@ -11,6 +11,9 @@ import RightPage from "./components/RightPage"
 import DynamoDB from 'aws-sdk/clients/dynamodb';
 import Modal from "./components/Modal";
 import Collapse from '@material-ui/core/Collapse';
+import { render } from 'react-dom';
+import { SortableContainer, SortableElement, SortableHandle } from 'react-sortable-hoc';
+import arrayMove from 'array-move';
 
 Amplify.configure({
   Auth: {
@@ -21,34 +24,59 @@ Amplify.configure({
   }
 });
 
-function FormatChapter({item = {}, setSelectedQuest, selectedQuest}){
-  const[show, setShow] = React.useState(false);
+function FormatQuest({ item = {}, setSelectedQuest, selectedQuest, index, suspendShow }) {
+  const [show, setShow] = React.useState(false);
+
   React.useEffect(() => {
-    if(selectedQuest.id !== item.id){
+    if (suspendShow) {
       setShow(false);
     }
-  },[selectedQuest])
+  }, [suspendShow])
+
+  React.useEffect(() => {
+    if (selectedQuest.id !== item.id) {
+      setShow(false);
+    }
+  }, [selectedQuest])
 
   const handleShowState = (bool) => {
-    if (selectedQuest.id === item.id || bool){
+    if (!suspendShow && (selectedQuest.id === item.id || bool)) {
       setShow(true)
     } else {
       setShow(false)
     }
   }
 
-  if (JSON.stringify(item) === "{}") {return null}
+  if (JSON.stringify(item) === "{}") { return null }
   return (
-    <div onMouseOver={() => handleShowState(true)} onMouseLeave={() => handleShowState(false)} onClick={()=>{if(setSelectedQuest) setSelectedQuest(item)}} style={{cursor:"pointer",width:"50%", display:"flex", flexDirection:"column", alignItems:"flex-start", paddingLeft:20, paddingTop:30, transition: "height 0.5s"}} >
-    <div style={{display:"flex", alignItems:"center"}}><img style={{width:30, height:15}}  src={diamond}/><span style={{fontSize:15, paddingLeft:10}}>{item.label}</span></div>
-    <Collapse timeout={1000} in={show}>
-    {
-    item.subquests.map(subQ => <div style={{paddingLeft: 30, paddingTop:10, display: "flex", alignItems:"center"}}><img style={{width:30, height:30}} src={cross}/><span style={{fontSize:15, paddingLeft: 20}}>{subQ.label}</span></div>)
-    }
-    </Collapse>
-  </div>
+    <SortableItem
+      index={index}
+      value={
+        <div onMouseOver={() => handleShowState(true)} onMouseLeave={() => handleShowState(false)} onClick={() => { if (setSelectedQuest) setSelectedQuest(item) }} style={{ cursor: "pointer", width: "50%", display: "flex", flexDirection: "column", alignItems: "flex-start", paddingLeft: 20, paddingTop: 30, transition: "height 0.5s" }} >
+          <div style={{ display: "flex", alignItems: "center" }}><span style={{ fontSize: 15, paddingLeft: 10 }}>{item.label}</span></div>
+          <Collapse timeout={1000} in={show}>
+            {
+              item.subquests.map(subQ => <div style={{ paddingLeft: 30, paddingTop: 10, display: "flex", alignItems: "center" }}><img style={{ width: 30, height: 30 }} src={cross} /><span style={{ fontSize: 15, paddingLeft: 20 }}>{subQ.label}</span></div>)
+            }
+          </Collapse>
+        </div>
+      }
+    />
   )
 }
+const DragHandle = SortableHandle(() => <div><img style={{ width: 30, height: 15, paddingTop:33}} src={diamond} /></div>);
+
+const SortableItem = SortableElement(({ value }) => <li style={{listStyleType: "none", display:"flex" }}><DragHandle /> {value}</li>);
+
+const SortableList = SortableContainer(({ items, setSelectedQuest, selectedQuest, suspendShow }) => {
+  return (
+    <ul style={{ listStyleType: "none" }}>
+      {items.map((item, index) => {
+        if (item.id !== "orderList") { return <FormatQuest key={"item-" + item.id} index={index} setSelectedQuest={setSelectedQuest} selectedQuest={selectedQuest} item={item} suspendShow={suspendShow} /> }
+      })}
+    </ul>
+  );
+});
 
 function App() {
   const [currentUser, setCurrentUser] = React.useState("");
@@ -56,70 +84,77 @@ function App() {
   const [open, setOpen] = React.useState(false);
   const [questEditMode, setQuestEditMode] = React.useState(false);
   const [selectedQuest, setSelectedQuest] = React.useState({});
-
-  
+  const [suspendShow, setSuspendShow] = React.useState(false);
+  const container = React.useRef();
 
   React.useEffect(() => {
     Auth.currentAuthenticatedUser({
       bypassCache: false
-    }).then(user =>
-      {setCurrentUser(user.username);
+    }).then(user => {
+      setCurrentUser(user.username);
       getAllQuests();
-      }
+    }
     )
       .catch(err => console.log("currentAuthenticatedUser error", err));
-      
+
   }, []
   )
   React.useEffect(() => {
-    for (let i of quests){
-      if (i.id === selectedQuest.id){
+    console.log("quests", quests)
+    for (let i of quests) {
+      if (i.id === selectedQuest.id) {
         setSelectedQuest(i)
         return;
       }
     }
     setSelectedQuest({});
-  },[quests])
+  }, [quests])
 
   const getAllQuests = () => {
-    const params = {TableName:"Quests", Limit: 100}
+    const params = { TableName: "Quests", Limit: 1000 }
     Auth.currentCredentials()
-  .then(credentials => {
-    const db = new DynamoDB.DocumentClient({
-      credentials: Auth.essentialCredentials(credentials), region:'us-east-2'
-    });
-      db.scan(params, (err, data) => {
-        if (err){console.log("ERROR",err)}
-        else {console.log(data); setQuests(data.Items.reverse())}
+      .then(credentials => {
+        const db = new DynamoDB.DocumentClient({
+          credentials: Auth.essentialCredentials(credentials), region: 'us-east-2'
+        });
+        db.scan(params, (err, data) => {
+          if (err) { console.log("ERROR", err) }
+          else { console.log(data); setQuests(data.Items.reverse()) }
+        })
       })
-  })
   }
   const deleteQuest = () => {
     var params = {
       TableName: "Quests",
-      Key:{
-          "id": selectedQuest.id
+      Key: {
+        "id": selectedQuest.id
       }
     };
     Auth.currentCredentials()
-  .then(credentials => {
-    const db = new DynamoDB.DocumentClient({
-      credentials: Auth.essentialCredentials(credentials), region:'us-east-2'
-    });
-      db.delete(params, (err, data) => {
-        if (err){console.log("ERROR",err)}
-        else {console.log("SUCCESS!!",data); getAllQuests()}
+      .then(credentials => {
+        const db = new DynamoDB.DocumentClient({
+          credentials: Auth.essentialCredentials(credentials), region: 'us-east-2'
+        });
+        db.delete(params, (err, data) => {
+          if (err) { console.log("ERROR", err) }
+          else { console.log("SUCCESS!!", data); getAllQuests() }
+        })
       })
-  })
   }
-  
+
 
   const confirmDeleteQuest = () => {
-    let txt="";
     if (window.confirm("Do you want to delete the Selected Quest along with all Sub-Quests?")) {
       deleteQuest();
     }
   }
+
+  const onSortEnd = ({ oldIndex, newIndex }) => {
+    const newQuests = arrayMove(quests, oldIndex, newIndex);
+    setQuests(newQuests)
+    setSuspendShow(false)
+  };
+
 
   return (
     <div className="App">
@@ -127,37 +162,36 @@ function App() {
         <div style={{ flex: 1, width: "100%", paddingLeft: "80%" }}>
           {currentUser}
         </div>
-        <div style={{ flex: 1, width: "100%"}}>
-          
+        <div style={{ flex: 1, width: "100%" }}>
         </div>
         <div style={{ flex: 18, display: "flex", width: "90%", justifyContent: "space-around" }}>
           <div style={{ flex: 1 }}></div>
-          <div id="leftPage" style={{ flex: 8, width: "100%", alignItems:"center" }}>
+          <div id="leftPage" style={{ flex: 8, width: "100%", alignItems: "center" }} ref={container}>
             <CustomScrollBar>
-  {quests.map(item => { if( item.id !== "orderList") { return <FormatChapter setSelectedQuest={setSelectedQuest} selectedQuest={selectedQuest} item={item}/>} })}
-              <div className="newQuestButtonDiv" onClick={()=> setOpen(true)}>
-                <div className="newQuestButton"style={{display: "flex", alignItems:"center"}}>
-                  <img style={{width:30, height:15, cursor:"pointer"}}  src={diamond}/>
+              <SortableList useDragHandle items={quests} setSelectedQuest={setSelectedQuest} selectedQuest={selectedQuest} onSortStart={() => setSuspendShow(true)} onSortEnd={onSortEnd} suspendShow={suspendShow} />
+              <div className="newQuestButtonDiv">
+                <div className="newQuestButton" style={{ display: "flex", alignItems: "center" }}>
+                  <img style={{ width: 30, height: 15, cursor: "pointer" }} src={diamond} />
                 </div>
               </div>
             </CustomScrollBar>
           </div>
           <div style={{ flex: 1 }}></div>
-          <div id="rightPage" style={{ display:"flex", flexDirection:"column", alignItems:"center",flex: 8, width: "90%", transform: "rotate(-1.75deg)" }}>
-            {JSON.stringify(selectedQuest) !== "{}" && 
-            <div style={{display:"flex", alignItems:"center"}}>
-              <span onClick={()=>{setQuestEditMode(true); setOpen(true) } } style={{fontSize:25, paddingLeft:10}}>{selectedQuest.label}</span> <img className="closeButton" style={{cursor:"pointer"}} src={closeButton} onClick={confirmDeleteQuest}/>
-              {/* <img style={{height:10,width: "90%"}} src={divider}/> */}
+          <div id="rightPage" style={{ display: "flex", flexDirection: "column", alignItems: "center", flex: 8, width: "90%", transform: "rotate(-1.75deg)" }}>
+            {JSON.stringify(selectedQuest) !== "{}" &&
+              <div style={{ display: "flex", alignItems: "center" }}>
+                <span onClick={() => { setQuestEditMode(true); setOpen(true) }} style={{ fontSize: 25, paddingLeft: 10 }}>{selectedQuest.label}</span> <img className="closeButton" style={{ cursor: "pointer" }} src={closeButton} onClick={confirmDeleteQuest} />
+                {/* <img style={{height:10,width: "90%"}} src={divider}/> */}
               </div>
             }
             <CustomScrollBar>
-              <RightPage item={selectedQuest} getAllQuests={getAllQuests}/>
+              <RightPage item={selectedQuest} getAllQuests={getAllQuests} />
             </CustomScrollBar>
           </div>
           <div style={{ flex: 1 }}></div>
         </div>
       </header>
-      <Modal open={open} setOpen={setOpen} getAllQuests={getAllQuests} questEditMode={questEditMode} setQuestEditMode={setQuestEditMode} selectedQuest={selectedQuest}/>
+      <Modal open={open} setOpen={setOpen} getAllQuests={getAllQuests} questEditMode={questEditMode} setQuestEditMode={setQuestEditMode} selectedQuest={selectedQuest} />
     </div>
   );
 }
