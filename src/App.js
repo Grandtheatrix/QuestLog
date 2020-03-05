@@ -24,7 +24,7 @@ Amplify.configure({
   }
 });
 
-function FormatQuest({ item = {}, setSelectedQuest, selectedQuest, index, suspendShow }) {
+function FormatQuest({ item = {}, setSelectedQuest, selectedQuest, index, suspendShow, setSuspendShow}) {
   const [show, setShow] = React.useState(false);
 
   React.useEffect(() => {
@@ -51,6 +51,7 @@ function FormatQuest({ item = {}, setSelectedQuest, selectedQuest, index, suspen
   return (
     <SortableItem
       index={index}
+      setSuspendShow={setSuspendShow}
       value={
         <div onMouseOver={() => handleShowState(true)} onMouseLeave={() => handleShowState(false)} onClick={() => { if (setSelectedQuest) setSelectedQuest(item) }} style={{ cursor: "pointer", width: "50%", display: "flex", flexDirection: "column", alignItems: "flex-start", paddingLeft: 20, paddingTop: 30, transition: "height 0.5s" }} >
           <div style={{ display: "flex", alignItems: "center" }}><span style={{ fontSize: 15, paddingLeft: 10 }}>{item.label}</span></div>
@@ -64,15 +65,15 @@ function FormatQuest({ item = {}, setSelectedQuest, selectedQuest, index, suspen
     />
   )
 }
-const DragHandle = SortableHandle(() => <div><img style={{ width: 30, height: 15, paddingTop:33}} src={diamond} /></div>);
+const DragHandle = SortableHandle(({setSuspendShow}) => <div onMouseOver={() => setSuspendShow(true)} onMouseLeave={() => setSuspendShow(false)}><img style={{ width: 30, height: 15, paddingTop:33}} src={diamond} /></div>);
 
-const SortableItem = SortableElement(({ value }) => <li style={{listStyleType: "none", display:"flex" }}><DragHandle /> {value}</li>);
+const SortableItem = SortableElement(({ value, setSuspendShow }) => <li style={{listStyleType: "none", display:"flex" }}><DragHandle setSuspendShow={setSuspendShow}/> {value}</li>);
 
-const SortableList = SortableContainer(({ items, setSelectedQuest, selectedQuest, suspendShow }) => {
+const SortableList = SortableContainer(({ items, setSelectedQuest, selectedQuest, suspendShow, setSuspendShow}) => {
   return (
     <ul style={{ listStyleType: "none" }}>
       {items.map((item, index) => {
-        if (item.id !== "orderList") { return <FormatQuest key={"item-" + item.id} index={index} setSelectedQuest={setSelectedQuest} selectedQuest={selectedQuest} item={item} suspendShow={suspendShow} /> }
+        if (item.id !== "orderList") { return <FormatQuest key={"item-" + item.id} index={index} setSelectedQuest={setSelectedQuest} selectedQuest={selectedQuest} item={item} suspendShow={suspendShow} setSuspendShow={setSuspendShow}/> }
       })}
     </ul>
   );
@@ -168,7 +169,7 @@ function App() {
           <div style={{ flex: 1 }}></div>
           <div id="leftPage" style={{ flex: 8, width: "100%", alignItems: "center" }} ref={container}>
             <CustomScrollBar>
-              <SortableList useDragHandle items={quests} setSelectedQuest={setSelectedQuest} selectedQuest={selectedQuest} onSortStart={() => setSuspendShow(true)} onSortEnd={onSortEnd} suspendShow={suspendShow} />
+              <SortableList useDragHandle items={quests} setSelectedQuest={setSelectedQuest} selectedQuest={selectedQuest} onSortStart={() => setSuspendShow(true)} onSortEnd={onSortEnd} suspendShow={suspendShow} setSuspendShow={setSuspendShow} />
               <div className="newQuestButtonDiv">
                 <div className="newQuestButton" style={{ display: "flex", alignItems: "center" }}>
                   <img style={{ width: 30, height: 15, cursor: "pointer" }} src={diamond} />
