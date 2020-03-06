@@ -29,7 +29,7 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-export default function SimpleModal({open, setOpen, getAllQuests, questEditMode, setQuestEditMode, selectedQuest}) {
+export default function SimpleModal({open, setOpen, getAllQuests, questEditMode, setQuestEditMode, selectedQuest, quests}) {
   const classes = useStyles();
   const [modalStyle] = React.useState(getModalStyle);
   const [text, setText] = React.useState("");
@@ -41,10 +41,11 @@ export default function SimpleModal({open, setOpen, getAllQuests, questEditMode,
   },[selectedQuest,questEditMode])
 
   const putQuest = () => {
-    var params = {
+    const newID = uuidv4();
+    const params = {
       TableName : 'Quests',
       Item: {
-         id: uuidv4(),
+         id: newID,
          label: text,
          subquests: [],
          dateCreated: moment.now()
@@ -57,9 +58,35 @@ export default function SimpleModal({open, setOpen, getAllQuests, questEditMode,
     });
       db.put(params, (err, data) => {
         if (err){console.log("ERROR",err)}
-        else {console.log("SUCCESS!!",data); handleClose(); getAllQuests()}
+        else {console.log("SUCCESS!!",data);}
       })
   })
+
+  let orderList = quests.map(item =>  {if(item.id !== "orderList") return item.id});
+  orderList.push(newID);
+  console.log("orderList",orderList);
+
+  const updateParams = {
+    TableName : 'Quests',
+    Key:{
+      "id": "orderList"
+      },
+      UpdateExpression: "set orderList = :l",
+      ExpressionAttributeValues:{
+          ":l": orderList
+      },
+      ReturnValues:"UPDATED_NEW"
+  };
+    Auth.currentCredentials()
+    .then(credentials => {
+      const db = new DynamoDB.DocumentClient({
+        credentials: Auth.essentialCredentials(credentials), region:'us-east-2'
+      });
+        db.update(updateParams, (err, data) => {
+          if (err){console.log("ERROR",err)}
+          else {console.log("SUCCESS!!",data); handleClose(); getAllQuests();}
+        })
+    })
   }
   const updateQuest = () => {
     var params = {
